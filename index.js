@@ -6,3 +6,8 @@ const { Cheese } = require('./Models/Cheese');
 
 
 
+module.exports = {
+    User,
+    Board,
+    Cheese
+}
