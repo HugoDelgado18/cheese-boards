@@ -32,6 +32,55 @@ describe(" User, Cheese, Board Models ", () => {
         expect(board1.rating).toBe(5);
     })
 
-    
+    test("multiple boards can be added to user", async () => {
+        const testUser = await User.create({name: "Hugo", email: "abc@email.com"});
+
+        const board1 = await Board.create({ type: "da house", description: "greater mixture", rating: 5 });
+        const board2 = await Board.create({ type: "da casa", description: "decent mixture", rating: 3 });
+
+        await testUser.addBoard([board1, board2]);
+
+        expect(await testUser.getBoards()).toHaveLength(2);
+    })
+
+    test("Multi boards can be added to boards & multi chesses can be added to boards", async () => {
+        const board1 = await Board.create({ type: "da house", description: "greater mixture", rating: 5 });
+        const board2 = await Board.create({ type: "da casa", description: "decent mixture", rating: 3 });
+
+        const cheese1 = await Cheese.create({ title: "Swiss", description: "Switzerland" });
+        const cheese2 = await Cheese.create({ title: "Swiss", description: "Switzerland" });
+
+        await board1.addCheese([cheese1, cheese2]);
+        await cheese1.addBoard([board1, board2]);
+
+        expect(await board1.countCheeses()).toBe(2);
+        expect(await cheese1.countBoards()).toBe(2);
+    })
+
+    test("eager loading-- board can be loaded with cheeses", async () => {
+
+        const cheeseInBoard = await Board.findAll({
+            include: [
+                { model: Cheese, as: "cheeses" }
+            ]
+        })
+
+        const boardsInUser = await User.findAll({
+            include: [
+                { model: Board, as: "boards" }
+            ]
+        })
+
+        const boardInCheese = await Cheese.findAll({
+            include: [
+                { model: Board, as: "boards" }
+            ]
+        })
+
+        expect(cheeseInBoard).toBeDefined();
+        expect(boardsInUser).toBeDefined();
+        expect(boardInCheese).toBeDefined();  
+    })
+
 })
 
